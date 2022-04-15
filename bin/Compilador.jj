@@ -1,0 +1,180 @@
+/*  CompiladorExemplo.jj  -  Analisador Sintático */
+
+options {
+
+  JDK_VERSION = "1.5";
+
+  DEBUG_PARSER = true;
+
+  DEBUG_TOKEN_MANAGER = false;
+
+}
+
+PARSER_BEGIN(CompiladorExemplo)
+
+import java.io.*;
+
+public class CompiladorExemplo {
+
+   public static void main(String args[])  throws ParseException  {
+
+      CompiladorExemplo analisador = null;
+
+      try {
+
+         analisador = new CompiladorExemplo(new FileInputStream("prog_fonte.my"));
+
+         analisador.inicio();
+
+      }
+
+      catch(FileNotFoundException e) {
+
+         System.out.println("Erro: arquivo não encontrado");
+
+      }
+
+      catch(TokenMgrError e) {
+
+         System.out.println("Erro léxico\n" + e.getMessage());
+
+      }
+
+      catch(ParseException e) {
+
+         System.out.println("Erro sintático\n" + e.getMessage());
+
+      }
+
+   }
+
+}
+
+PARSER_END(CompiladorExemplo)
+
+ 
+
+SKIP : {  " " | "\t" | "\r" | "\n" }
+
+SKIP : {
+
+   "/*" : comentario
+
+}
+
+<comentario> SKIP: {
+
+   "*/" : DEFAULT 
+
+}
+
+TOKEN [IGNORE_CASE] : {
+
+      <EXIBE: "exibe" >
+
+}
+
+TOKEN : {
+
+	  	<COMMENT : "//"> |	
+		<PT_VIRG: ";" > |
+      	<ATRIB:   ":=" >         
+ 		
+}
+
+TOKEN: {
+		<STRING_TYPE: "string" > |
+		<INTEGER_TYPE: "integer" > 
+}
+
+TOKEN : {
+		<IDENT: <LETTER> (<LETTER>|<DIGIT>)*> |
+		<STRING:  "\"" (~["\"","\n","\r"])* "\"" > |
+		<INTEGER: (["0"-"9"] (["0"-"9"])* ) > |
+		<#DIGIT: ["0"-"9"] > |
+		<#LETTER:  ["A"-"Z", "a"-"z"]> 	
+		//'#' indica que é um token privado, usado só na construção da AL
+}
+
+TOKEN : {
+		<MAIS: "+"> |
+ 		<MENOS: "-">
+}      
+
+void inicio() : {}
+
+{
+
+   ( linhaComando() )* <EOF>
+
+}
+
+void linhaComando() : {} 
+
+{
+
+      comando() <PT_VIRG>
+
+}
+
+void comando() : {} 
+
+{
+
+      declararVar() | atribuirVar()
+
+}
+
+void declararVar() : {}
+
+{
+
+  	//TODO: criar declarações multiplas
+	// string teste, teste1, teste4; integer teste, teste3;
+	
+	type() atribuirVar()
+}
+
+void atribuirVar() : {}
+
+{
+	// string teste; OU string teste := 'olá';
+	//integer teste; OU integer teste := 10;
+	//integer soma := 1+2;
+     <IDENT>  (<ATRIB> (<STRING>|expressao()))? 
+
+}
+
+void type() : {} 
+
+{
+
+      <STRING_TYPE> | <INTEGER_TYPE>
+
+}
+
+void expressao() : {} 
+
+{
+
+      fator() ( operador() fator() )*
+
+}
+
+
+void fator() : {} 
+
+{
+
+      <IDENT> | <INTEGER>
+
+}
+
+void operador() : {} 
+
+{
+
+      <MAIS> | <MENOS>
+
+}
+

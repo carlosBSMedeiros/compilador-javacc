@@ -1,0 +1,13 @@
+string ass := "AAAA";
+string ass := "AAAA 12312 qqqqq";
+string aedojidje := "41238967429387";
+string ass := 33;
+
+integer asd := 22 + 13;
+integer ferd := "1";
+
+string teste;
+
+
+teste := "outra string";
+
