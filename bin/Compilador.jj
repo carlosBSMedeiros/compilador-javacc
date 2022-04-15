@@ -1,180 +1,219 @@
-/*  CompiladorExemplo.jj  -  Analisador Sintático */
+/*  Compilador.jj  -  Analisador Sintático */
 
-options {
-
+options
+{
   JDK_VERSION = "1.5";
-
   DEBUG_PARSER = true;
-
   DEBUG_TOKEN_MANAGER = false;
-
 }
 
-PARSER_BEGIN(CompiladorExemplo)
-
+PARSER_BEGIN(Compilador)
 import java.io.*;
 
-public class CompiladorExemplo {
-
-   public static void main(String args[])  throws ParseException  {
-
-      CompiladorExemplo analisador = null;
-
-      try {
-
-         analisador = new CompiladorExemplo(new FileInputStream("prog_fonte.my"));
-
-         analisador.inicio();
-
-      }
-
-      catch(FileNotFoundException e) {
-
-         System.out.println("Erro: arquivo não encontrado");
-
-      }
-
-      catch(TokenMgrError e) {
-
-         System.out.println("Erro léxico\n" + e.getMessage());
-
-      }
-
-      catch(ParseException e) {
-
-         System.out.println("Erro sintático\n" + e.getMessage());
-
-      }
-
-   }
-
-}
-
-PARSER_END(CompiladorExemplo)
-
- 
-
-SKIP : {  " " | "\t" | "\r" | "\n" }
-
-SKIP : {
-
-   "/*" : comentario
-
-}
-
-<comentario> SKIP: {
-
-   "*/" : DEFAULT 
-
-}
-
-TOKEN [IGNORE_CASE] : {
-
-      <EXIBE: "exibe" >
-
-}
-
-TOKEN : {
-
-	  	<COMMENT : "//"> |	
-		<PT_VIRG: ";" > |
-      	<ATRIB:   ":=" >         
- 		
-}
-
-TOKEN: {
-		<STRING_TYPE: "string" > |
-		<INTEGER_TYPE: "integer" > 
-}
-
-TOKEN : {
-		<IDENT: <LETTER> (<LETTER>|<DIGIT>)*> |
-		<STRING:  "\"" (~["\"","\n","\r"])* "\"" > |
-		<INTEGER: (["0"-"9"] (["0"-"9"])* ) > |
-		<#DIGIT: ["0"-"9"] > |
-		<#LETTER:  ["A"-"Z", "a"-"z"]> 	
-		//'#' indica que é um token privado, usado só na construção da AL
-}
-
-TOKEN : {
-		<MAIS: "+"> |
- 		<MENOS: "-">
-}      
-
-void inicio() : {}
-
+public class Compilador
 {
-
-   ( linhaComando() )* <EOF>
-
+  public static void main(String args []) throws ParseException
+  {
+    Compilador analisador = null;
+    try
+    {
+      analisador = new Compilador(new FileInputStream("prog_fonte.my"));
+      analisador.inicio();
+    }
+    catch (FileNotFoundException e)
+    {
+      System.out.println("Erro: arquivo nao encontrado");
+    }
+    catch (TokenMgrError e)
+    {
+      System.out.println("Erro lexico" + e.getMessage());
+    }
+    catch (ParseException e)
+    {
+      System.out.println("Erro sintatico" + e.getMessage());
+    }
+  }
 }
 
-void linhaComando() : {} 
+PARSER_END(Compilador)
 
+SKIP :
 {
-
-      comando() <PT_VIRG>
-
+  " "
+| "\t"
+| "\r"
+| "\n"
 }
 
-void comando() : {} 
-
+SKIP :
 {
-
-      declararVar() | atribuirVar()
-
+  "/*" : comentario
 }
 
-void declararVar() : {}
-
+< comentario >
+SKIP :
 {
-
-  	//TODO: criar declarações multiplas
-	// string teste, teste1, teste4; integer teste, teste3;
-	
-	type() atribuirVar()
+  "*/" : DEFAULT
 }
 
-void atribuirVar() : {}
-
+TOKEN [ IGNORE_CASE ] :
 {
-	// string teste; OU string teste := 'olá';
-	//integer teste; OU integer teste := 10;
-	//integer soma := 1+2;
-     <IDENT>  (<ATRIB> (<STRING>|expressao()))? 
-
+  < EXIBE : "exibe" >
 }
 
-void type() : {} 
-
+TOKEN :
 {
-
-      <STRING_TYPE> | <INTEGER_TYPE>
-
+  < COMMENT : "//" >
+| 	
+  < PT_VIRG : ";" >
+| 
+  < ATRIB : ":=" >
 }
 
-void expressao() : {} 
-
+TOKEN :
 {
-
-      fator() ( operador() fator() )*
-
+  < STRING_TYPE : "string" >
+| 
+  < INTEGER_TYPE : "integer" >
 }
 
-
-void fator() : {} 
-
+TOKEN :
 {
-
-      <IDENT> | <INTEGER>
-
+  < IDENT :
+    < LETTER >
+    (
+      < LETTER >
+    | < DIGIT >
+    )* >
+| 
+  < STRING : "\"" (~[ "\"", "\n", "\r" ])* "\"" >
+| 
+  < INTEGER :
+    (
+      [ "0"-"9" ] ([ "0"-"9" ])*
+    ) >
+| 
+  < #DIGIT : [ "0"-"9" ] >
+| 
+  < #LETTER : [ "A"-"Z", "a"-"z" ] >	
+  //'#' indica que é um token privado, usado só na construção da AL
 }
 
-void operador() : {} 
-
+TOKEN :
 {
-
-      <MAIS> | <MENOS>
-
+  < READ : "read" >
+| 
+  < PRINT : "print" >
+| 
+  < IF : "if" >
+| 
+  < ENTAO : "entao" >
+| 
+  < ELSE : "else" >
+| 
+  < ENDIF : "endIf" >
+| 
+  < WHILE : "while" >
+| 
+  < DO : "do" >
+| 
+  < ENDWHILE : "endWhile" >
 }
 
+TOKEN :
+{
+  < MAIS : "+" >
+| < MENOS : "-" >
+| < MULT : "*" >
+| < DIVID : "/" >
+| < POT : "^" >
+| < IGUAL : "==" >
+| < MAIOR_IGUAL : ">=" >
+| < MENOR_IGUAL : "<=" >
+| < DIFERENTE : "!=" >
+| < SC_AND : "&&" >
+| < SC_OR : "||" >
+| < NEGACAO : "!" >
+| < CONCATENAR : "#" >
+| < PAR_E : "(" >
+| < PAR_D : ")" >
+}
+
+void inicio() :
+{}
+{
+  (
+    linhaComando()
+  )*
+  < EOF >
+}
+
+void linhaComando() :
+{}
+{
+  comando() < PT_VIRG >
+}
+
+void comando() :
+{}
+{
+  declararVar()
+| atribuirVar()
+}
+
+void declararVar() :
+{}
+{
+  //TODO: criar declarações multiplas
+  // string teste, teste1, teste4; integer teste, teste3;
+  type() atribuirVar()
+}
+
+void atribuirVar() :
+{}
+{
+  // string teste; OU string teste := 'olá';
+  //integer teste; OU integer teste := 10;
+  //integer soma := 1+2;
+  < IDENT >
+  (
+    < ATRIB >
+    (
+      < STRING >
+    | expressao()
+    )
+  )?
+}
+
+void type() :
+{}
+{
+  < STRING_TYPE >
+| < INTEGER_TYPE >
+}
+
+void expressao() :
+{}
+{
+  fator()
+  (
+    operador() fator()
+  )*
+}
+
+void fator() :
+{}
+{
+  < IDENT >
+| < INTEGER >
+}
+
+void operador() :
+{}
+{
+  < MAIS >
+| < MENOS >
+| < MULT >
+| < DIVID >
+| < POT >
+}
