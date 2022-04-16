@@ -11,3 +11,11 @@ string teste;
 
 teste := "outra string";
 
+print 10 * 10;
+print testeInt + 3;
+print "oi";
+print teste;
+
+read teste;
+read string teste;
+read integer teste;

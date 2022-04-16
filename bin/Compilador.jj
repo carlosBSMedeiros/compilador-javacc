@@ -79,6 +79,27 @@ TOKEN :
 
 TOKEN :
 {
+  < READ : "read" >
+| 
+  < PRINT : "print" >
+| 
+  < IF : "if" >
+| 
+  < ENTAO : "entao" >
+| 
+  < ELSE : "else" >
+| 
+  < ENDIF : "endIf" >
+| 
+  < WHILE : "while" >
+| 
+  < DO : "do" >
+| 
+  < ENDWHILE : "endWhile" >
+}
+
+TOKEN :
+{
   < IDENT :
     < LETTER >
     (
@@ -99,26 +120,7 @@ TOKEN :
   //'#' indica que é um token privado, usado só na construção da AL
 }
 
-TOKEN :
-{
-  < READ : "read" >
-| 
-  < PRINT : "print" >
-| 
-  < IF : "if" >
-| 
-  < ENTAO : "entao" >
-| 
-  < ELSE : "else" >
-| 
-  < ENDIF : "endIf" >
-| 
-  < WHILE : "while" >
-| 
-  < DO : "do" >
-| 
-  < ENDWHILE : "endWhile" >
-}
+
 
 TOKEN :
 {
@@ -159,6 +161,8 @@ void comando() :
 {
   declararVar()
 | atribuirVar()
+| print()
+| read ()
 }
 
 void declararVar() :
@@ -166,23 +170,21 @@ void declararVar() :
 {
   //TODO: criar declarações multiplas
   // string teste, teste1, teste4; integer teste, teste3;
+
+
+  //string teste; OU string teste := 'olá';
+  //integer teste; OU integer teste := 10;
+  //integer soma := 1+2;
   type() atribuirVar()
 }
 
 void atribuirVar() :
 {}
 {
-  // string teste; OU string teste := 'olá';
-  //integer teste; OU integer teste := 10;
+  // teste; OU teste := 'olá';
+  // teste; OU teste := 10;
   //integer soma := 1+2;
-  < IDENT >
-  (
-    < ATRIB >
-    (
-      < STRING >
-    | expressao()
-    )
-  )?
+  < IDENT >(< ATRIB > (< STRING >| expressao()))?
 }
 
 void type() :
@@ -216,4 +218,18 @@ void operador() :
 | < MULT >
 | < DIVID >
 | < POT >
+}
+
+void print(): {}
+{
+
+<PRINT> (expressao() | <STRING>)
+
+}
+
+void read(): {}
+{
+
+<READ> (type())? <IDENT>
+
 }

@@ -21,33 +21,33 @@ public interface CompiladorConstants {
   /** RegularExpression Id. */
   int INTEGER_TYPE = 12;
   /** RegularExpression Id. */
-  int IDENT = 13;
+  int READ = 13;
   /** RegularExpression Id. */
-  int STRING = 14;
+  int PRINT = 14;
   /** RegularExpression Id. */
-  int INTEGER = 15;
+  int IF = 15;
   /** RegularExpression Id. */
-  int DIGIT = 16;
+  int ENTAO = 16;
   /** RegularExpression Id. */
-  int LETTER = 17;
+  int ELSE = 17;
   /** RegularExpression Id. */
-  int READ = 18;
+  int ENDIF = 18;
   /** RegularExpression Id. */
-  int PRINT = 19;
+  int WHILE = 19;
   /** RegularExpression Id. */
-  int IF = 20;
+  int DO = 20;
   /** RegularExpression Id. */
-  int ENTAO = 21;
+  int ENDWHILE = 21;
   /** RegularExpression Id. */
-  int ELSE = 22;
+  int IDENT = 22;
   /** RegularExpression Id. */
-  int ENDIF = 23;
+  int STRING = 23;
   /** RegularExpression Id. */
-  int WHILE = 24;
+  int INTEGER = 24;
   /** RegularExpression Id. */
-  int DO = 25;
+  int DIGIT = 25;
   /** RegularExpression Id. */
-  int ENDWHILE = 26;
+  int LETTER = 26;
   /** RegularExpression Id. */
   int MAIS = 27;
   /** RegularExpression Id. */
@@ -99,11 +99,6 @@ public interface CompiladorConstants {
     "\":=\"",
     "\"string\"",
     "\"integer\"",
-    "<IDENT>",
-    "<STRING>",
-    "<INTEGER>",
-    "<DIGIT>",
-    "<LETTER>",
     "\"read\"",
     "\"print\"",
     "\"if\"",
@@ -113,6 +108,11 @@ public interface CompiladorConstants {
     "\"while\"",
     "\"do\"",
     "\"endWhile\"",
+    "<IDENT>",
+    "<STRING>",
+    "<INTEGER>",
+    "<DIGIT>",
+    "<LETTER>",
     "\"+\"",
     "\"-\"",
     "\"*\"",

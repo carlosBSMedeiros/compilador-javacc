@@ -1,0 +1,13 @@
+EBNF
+
+inicio            -> (linhaComando) * <EOF>    
+linhaComando      -> comando <PT_VIRG> 
+comando           -> declararVar | atribuirVar | print | read | if | while 
+declararVar       -> type atribuirVar 
+atribuirVar       -> <IDENT> (<ATRIB>(<STRING> | expressao))? 
+type              -> <STRING_TYPE> | <INTEGER_TYPE> 
+expressao         -> fator (operador fator)* 
+fator             -> <IDENT> | <INTEGER> 
+operador          -> <MAIS>| <MENOS> | <MULT> | <DIVID> | <POT> 
+print             -> <PRINT> (expressao | <STRING>) 
+read              -> <READ> (type)? <IDENT> 

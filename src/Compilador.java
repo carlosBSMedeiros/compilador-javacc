@@ -32,6 +32,8 @@ public class Compilador implements CompiladorConstants {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case STRING_TYPE:
         case INTEGER_TYPE:
+        case READ:
+        case PRINT:
         case IDENT:
           ;
           break;
@@ -67,6 +69,12 @@ public class Compilador implements CompiladorConstants {
         break;
       case IDENT:
         atribuirVar();
+        break;
+      case PRINT:
+        print();
+        break;
+      case READ:
+        read();
         break;
       default:
         jj_la1[1] = jj_gen;
@@ -213,6 +221,47 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
+  static final public void print() throws ParseException {
+    trace_call("print");
+    try {
+      jj_consume_token(PRINT);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case IDENT:
+      case INTEGER:
+        expressao();
+        break;
+      case STRING:
+        jj_consume_token(STRING);
+        break;
+      default:
+        jj_la1[8] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    } finally {
+      trace_return("print");
+    }
+  }
+
+  static final public void read() throws ParseException {
+    trace_call("read");
+    try {
+      jj_consume_token(READ);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case STRING_TYPE:
+      case INTEGER_TYPE:
+        type();
+        break;
+      default:
+        jj_la1[9] = jj_gen;
+        ;
+      }
+      jj_consume_token(IDENT);
+    } finally {
+      trace_return("read");
+    }
+  }
+
   static private boolean jj_initialized_once = false;
   /** Generated Token Manager. */
   static public CompiladorTokenManager token_source;
@@ -223,7 +272,7 @@ public class Compilador implements CompiladorConstants {
   static public Token jj_nt;
   static private int jj_ntk;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[8];
+  static final private int[] jj_la1 = new int[10];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -231,10 +280,10 @@ public class Compilador implements CompiladorConstants {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x3800,0x3800,0xe000,0x400,0x1800,0xf8000000,0xa000,0xf8000000,};
+      jj_la1_0 = new int[] {0x407800,0x407800,0x1c00000,0x400,0x1800,0xf8000000,0x1400000,0xf8000000,0x1c00000,0x1800,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
+      jj_la1_1 = new int[] {0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,0x0,};
    }
 
   /** Constructor with InputStream. */
@@ -255,7 +304,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -269,7 +318,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -286,7 +335,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -296,7 +345,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -312,7 +361,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -321,7 +370,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 8; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 10; i++) jj_la1[i] = -1;
   }
 
   static private Token jj_consume_token(int kind) throws ParseException {
@@ -379,7 +428,7 @@ public class Compilador implements CompiladorConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 10; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {
