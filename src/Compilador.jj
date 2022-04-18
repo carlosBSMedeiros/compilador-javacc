@@ -163,6 +163,8 @@ void comando() :
 | atribuirVar()
 | print()
 | read ()
+| concat()
+| whileComando()
 }
 
 void declararVar() :
@@ -185,6 +187,19 @@ void atribuirVar() :
   // teste; OU teste := 10;
   //integer soma := 1+2;
   < IDENT >(< ATRIB > (< STRING >| expressao()))?
+}
+
+void concat() :
+{}
+{
+   < STRING > (< CONCATENAR > < STRING >)+
+}
+
+//necessário fazer o condicional ex.: while(x==true)(...)endWhile
+void whileComando() :
+{}
+{
+  < WHILE > linhaComando() < ENDWHILE >
 }
 
 void type() :

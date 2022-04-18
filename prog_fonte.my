@@ -19,3 +19,10 @@ print teste;
 read teste;
 read string teste;
 read integer teste;
+
+"Aba"#"cate";
+"aa" # "bb" # "CC";
+
+while
+print ass;
+endWhile;

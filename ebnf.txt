@@ -2,9 +2,11 @@ EBNF
 
 inicio            -> (linhaComando) * <EOF>    
 linhaComando      -> comando <PT_VIRG> 
-comando           -> declararVar | atribuirVar | print | read | if | while 
+comando           -> declararVar | atribuirVar | print | read | if | while | concat | whileComando
 declararVar       -> type atribuirVar 
-atribuirVar       -> <IDENT> (<ATRIB>(<STRING> | expressao))? 
+atribuirVar       -> <IDENT> (<ATRIB>(<STRING> | expressao))?
+concat            -> < STRING > (< CONCATENAR > < STRING >)+ 
+whileComando      -> < WHILE > linhaComando < ENDWHILE >
 type              -> <STRING_TYPE> | <INTEGER_TYPE> 
 expressao         -> fator (operador fator)* 
 fator             -> <IDENT> | <INTEGER> 
