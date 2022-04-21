@@ -113,7 +113,7 @@ TOKEN :
     (
       [ "0"-"9" ] ([ "0"-"9" ])*
     ) >
-| 
+|
   < #DIGIT : [ "0"-"9" ] >
 | 
   < #LETTER : [ "A"-"Z", "a"-"z" ] >	
@@ -165,6 +165,7 @@ void comando() :
 | read ()
 | concat()
 | whileComando()
+| ifComando() 
 }
 
 void declararVar() :
@@ -195,11 +196,27 @@ void concat() :
    < STRING > (< CONCATENAR > < STRING >)+
 }
 
-//necessário fazer o condicional ex.: while(x==true)(...)endWhile
+void ifComando(): {}
+{
+
+<IF>< PAR_E >condicao()< PAR_D > <ENTAO>
+    (linhaComando())*
+    (<ELSE> (linhaComando())* )?
+<ENDIF>
+}
+
+
 void whileComando() :
 {}
 {
-  < WHILE > linhaComando() < ENDWHILE >
+  < WHILE > < PAR_E >condicao()< PAR_D > (linhaComando())+ < ENDWHILE >
+}
+
+void condicao() :
+{}
+{
+  expressaoBool()(operadorBool() < PAR_E >(condicao())+< PAR_D >)*|
+  < PAR_E >(condicao())+< PAR_D > (operadorBool())*
 }
 
 void type() :
@@ -212,10 +229,31 @@ void type() :
 void expressao() :
 {}
 {
-  fator()
-  (
-    operador() fator()
-  )*
+  fator() (operador() fator() )*
+}
+
+void expressaoBool() :
+{}
+{
+  fatorBool() operadorBool() fatorBool()
+}
+
+void fatorBool() :
+{}
+{
+    < INTEGER >
+}
+
+void operadorBool() :
+{}
+{
+  < IGUAL >
+| < MAIOR_IGUAL >
+| < MENOR_IGUAL >
+| < DIFERENTE >
+| < SC_AND >
+| < SC_OR >
+| < NEGACAO >
 }
 
 void fator() :
