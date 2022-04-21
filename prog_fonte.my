@@ -1,0 +1,31 @@
+string ass := "AAAA";
+string ass := "AAAA 12312 qqqqq";
+string aedojidje := "41238967429387";
+string ass := 33;
+
+integer asd := 22 + 13;
+integer ferd := "1";
+
+string teste;
+
+
+teste := "outra string";
+
+print 10 * 10;
+print testeInt + 3;
+print "oi";
+print teste;
+
+read teste;
+read string teste;
+read integer teste;
+
+"Aba"#"cate";
+"aa" # "bb" # "CC";
+
+while (((1!=0) == ((0==0)==(1!=0)) == (0==0)))
+print ass;
+endWhile;
+if (1!=0 == (1!=0 ||(1>=0)|| (1!=0)||(0<=0))) entao
+print "ola";
+endIf;
