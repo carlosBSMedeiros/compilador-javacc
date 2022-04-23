@@ -131,6 +131,8 @@ TOKEN :
 | < POT : "^" >
 | < IGUAL : "==" >
 | < MAIOR_IGUAL : ">=" >
+| < MAIOR: ">">
+| < MENOR: "< ">
 | < MENOR_IGUAL : "<=" >
 | < DIFERENTE : "!=" >
 | < SC_AND : "&&" >
@@ -165,6 +167,7 @@ void comando() :
 | read ()
 | concat()
 | whileComando()
+| ifComando()
 }
 
 void declararVar() :
@@ -186,7 +189,7 @@ void atribuirVar() :
   // teste; OU teste := 'olá';
   // teste; OU teste := 10;
   //integer soma := 1+2;
-  < IDENT >(< ATRIB > (< STRING >| expressao()))?
+  < IDENT >(< ATRIB > (< STRING >| exp()))?
 }
 
 void concat() :
@@ -199,7 +202,18 @@ void concat() :
 void whileComando() :
 {}
 {
-  < WHILE > linhaComando() < ENDWHILE >
+  < WHILE >  <DO> (
+    linhaComando()
+  )* < ENDWHILE >
+}
+
+void ifComando(): {}
+{
+
+<IF> <ENTAO> 
+	(linhaComando())*
+	(<ELSE> (linhaComando())* )?
+<ENDIF>
 }
 
 void type() :
@@ -209,19 +223,70 @@ void type() :
 | < INTEGER_TYPE >
 }
 
-void expressao() :
+void exp() :
 {}
 {
-  fator()
-  (
-    operador() fator()
-  )*
+  expAnd() ( <SC_OR> expAnd() )*
 }
 
-void fator() :
+void expAnd(): {}
+{
+	expRelac()(<SC_AND> expRelac())*
+}
+
+void expRelac() :
 {}
 {
-  < IDENT >
+ 	expAdt()
+ 	(
+	<IGUAL>expAdt()|
+	<DIFERENTE>expAdt()|
+	<MAIOR_IGUAL>expAdt()|
+	<MENOR_IGUAL>expAdt()|
+	<MAIOR>expAdt()|
+	<MENOR>expAdt()
+
+ 	)*
+
+
+}
+
+void expAdt() :
+{}
+{
+ 	expMult()
+ 	(
+	<MAIS>expMult()|
+	<MENOS>expMult()
+ 	)*
+}
+
+void expMult() :
+{}
+{
+ exptNot()
+ 	(
+	<MULT>expPotenc()|
+	<DIVID>expPotenc()
+ 	)*
+}
+
+void expPotenc(): {}
+{
+	exptNot()(exptNot()<POT>)*
+}
+
+void exptNot():
+{}
+{
+	expParent()(<NEGACAO>expParent())*
+}
+
+void expParent() :
+{}
+{
+  "("exp()")"
+|   < IDENT >
 | < INTEGER >
 }
 
@@ -238,7 +303,7 @@ void operador() :
 void print(): {}
 {
 
-<PRINT> (expressao() | <STRING>)
+<PRINT> (exp() | <STRING>)
 
 }
 

@@ -63,21 +63,25 @@ public interface CompiladorConstants {
   /** RegularExpression Id. */
   int MAIOR_IGUAL = 33;
   /** RegularExpression Id. */
-  int MENOR_IGUAL = 34;
+  int MAIOR = 34;
   /** RegularExpression Id. */
-  int DIFERENTE = 35;
+  int MENOR = 35;
   /** RegularExpression Id. */
-  int SC_AND = 36;
+  int MENOR_IGUAL = 36;
   /** RegularExpression Id. */
-  int SC_OR = 37;
+  int DIFERENTE = 37;
   /** RegularExpression Id. */
-  int NEGACAO = 38;
+  int SC_AND = 38;
   /** RegularExpression Id. */
-  int CONCATENAR = 39;
+  int SC_OR = 39;
   /** RegularExpression Id. */
-  int PAR_E = 40;
+  int NEGACAO = 40;
   /** RegularExpression Id. */
-  int PAR_D = 41;
+  int CONCATENAR = 41;
+  /** RegularExpression Id. */
+  int PAR_E = 42;
+  /** RegularExpression Id. */
+  int PAR_D = 43;
 
   /** Lexical state. */
   int DEFAULT = 0;
@@ -120,6 +124,8 @@ public interface CompiladorConstants {
     "\"^\"",
     "\"==\"",
     "\">=\"",
+    "\">\"",
+    "\"< \"",
     "\"<=\"",
     "\"!=\"",
     "\"&&\"",
