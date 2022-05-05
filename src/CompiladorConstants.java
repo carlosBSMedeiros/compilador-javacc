@@ -9,84 +9,82 @@ public interface CompiladorConstants {
   /** End of File. */
   int EOF = 0;
   /** RegularExpression Id. */
-  int EXIBE = 7;
+  int PT_VIRG = 11;
   /** RegularExpression Id. */
-  int COMMENT = 8;
+  int ATRIB = 12;
   /** RegularExpression Id. */
-  int PT_VIRG = 9;
+  int STRING_TYPE = 13;
   /** RegularExpression Id. */
-  int ATRIB = 10;
+  int INTEGER_TYPE = 14;
   /** RegularExpression Id. */
-  int STRING_TYPE = 11;
+  int READ = 15;
   /** RegularExpression Id. */
-  int INTEGER_TYPE = 12;
+  int PRINT = 16;
   /** RegularExpression Id. */
-  int READ = 13;
+  int IF = 17;
   /** RegularExpression Id. */
-  int PRINT = 14;
+  int ENTAO = 18;
   /** RegularExpression Id. */
-  int IF = 15;
+  int ELSE = 19;
   /** RegularExpression Id. */
-  int ENTAO = 16;
+  int ENDIF = 20;
   /** RegularExpression Id. */
-  int ELSE = 17;
+  int WHILE = 21;
   /** RegularExpression Id. */
-  int ENDIF = 18;
+  int DO = 22;
   /** RegularExpression Id. */
-  int WHILE = 19;
+  int ENDWHILE = 23;
   /** RegularExpression Id. */
-  int DO = 20;
+  int IDENT = 24;
   /** RegularExpression Id. */
-  int ENDWHILE = 21;
+  int STRING = 25;
   /** RegularExpression Id. */
-  int IDENT = 22;
+  int INTEGER = 26;
   /** RegularExpression Id. */
-  int STRING = 23;
+  int DIGIT = 27;
   /** RegularExpression Id. */
-  int INTEGER = 24;
+  int LETTER = 28;
   /** RegularExpression Id. */
-  int DIGIT = 25;
+  int MAIS = 29;
   /** RegularExpression Id. */
-  int LETTER = 26;
+  int MENOS = 30;
   /** RegularExpression Id. */
-  int MAIS = 27;
+  int MULT = 31;
   /** RegularExpression Id. */
-  int MENOS = 28;
+  int DIVID = 32;
   /** RegularExpression Id. */
-  int MULT = 29;
+  int POT = 33;
   /** RegularExpression Id. */
-  int DIVID = 30;
+  int IGUAL = 34;
   /** RegularExpression Id. */
-  int POT = 31;
+  int MAIOR_IGUAL = 35;
   /** RegularExpression Id. */
-  int IGUAL = 32;
+  int MAIOR = 36;
   /** RegularExpression Id. */
-  int MAIOR_IGUAL = 33;
+  int MENOR = 37;
   /** RegularExpression Id. */
-  int MAIOR = 34;
+  int MENOR_IGUAL = 38;
   /** RegularExpression Id. */
-  int MENOR = 35;
+  int DIFERENTE = 39;
   /** RegularExpression Id. */
-  int MENOR_IGUAL = 36;
+  int SC_AND = 40;
   /** RegularExpression Id. */
-  int DIFERENTE = 37;
+  int SC_OR = 41;
   /** RegularExpression Id. */
-  int SC_AND = 38;
+  int NEGACAO = 42;
   /** RegularExpression Id. */
-  int SC_OR = 39;
+  int CONCAT = 43;
   /** RegularExpression Id. */
-  int NEGACAO = 40;
+  int PAR_E = 44;
   /** RegularExpression Id. */
-  int CONCATENAR = 41;
-  /** RegularExpression Id. */
-  int PAR_E = 42;
-  /** RegularExpression Id. */
-  int PAR_D = 43;
+  int PAR_D = 45;
 
   /** Lexical state. */
   int DEFAULT = 0;
   /** Lexical state. */
-  int comentario = 1;
+  int comentariomult = 1;
+  /** Lexical state. */
+  int comentariosimples = 2;
 
   /** Literal token values. */
   String[] tokenImage = {
@@ -97,12 +95,14 @@ public interface CompiladorConstants {
     "\"\\n\"",
     "\"/*\"",
     "\"*/\"",
-    "\"exibe\"",
+    "<token of kind 7>",
     "\"//\"",
+    "<token of kind 9>",
+    "<token of kind 10>",
     "\";\"",
     "\":=\"",
-    "\"string\"",
-    "\"integer\"",
+    "\"String\"",
+    "\"Integer\"",
     "\"read\"",
     "\"print\"",
     "\"if\"",
@@ -134,6 +134,7 @@ public interface CompiladorConstants {
     "\"#\"",
     "\"(\"",
     "\")\"",
+    "\",\"",
   };
 
 }

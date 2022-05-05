@@ -1,0 +1,19 @@
+Integer num1 := 1^10;
+Integer num2 := 2;
+
+
+/*
+	responsavel por testar qualquer coisa. Se possível, bata a cabeça no teclado e execute o código...
+	hadouken, Shoriuken, tek terek terek tek terek terek tuuuugen
+*/
+if(10>1) entao
+
+    Integer meuNumero;
+    read "digite um numero", meuNumero;
+
+    while(0>1 && 0==0) do
+        if(meuNumero == num1) entao
+            print num2;
+        endIf;
+    endWhile;
+endIf;

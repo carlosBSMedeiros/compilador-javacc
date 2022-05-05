@@ -1,0 +1,22 @@
+
+//enquanto isso...
+while(0>1 && 0==0) do
+    if(10>1) entao
+        String texto := "meu texo";
+        print texto;
+    else 
+        print  "outro texto";
+    endIf;
+endWhile;
+
+String ola := "oi";
+
+String teste := 2 # !(4+3) # "teste" # 44!=2 ;
+
+Integer teste1 := 1;
+Integer teste2 := 2;
+
+
+
+
+

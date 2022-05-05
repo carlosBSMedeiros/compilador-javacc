@@ -1,0 +1,11 @@
+//exemplo de código com If
+
+Integer condicaoTeste := 3+5;
+
+if(10 > condicaoTeste && !( (5>8) || (10!=7) )  ) entao
+    if(1==2)entao
+        print "1 igual a 2";
+    else 
+        print "1 não é igual a 2";
+    endIf;
+endIf;

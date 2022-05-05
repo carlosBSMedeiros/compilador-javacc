@@ -17,8 +17,35 @@ public class Compilador
     Compilador analisador = null;
     try
     {
-      analisador = new Compilador(new FileInputStream("prog_fonte.my"));
+      System.out.println(" Inicio Exemplo de c\u00f3digo 01");
+      analisador = new Compilador(new FileInputStream("codigos_exemplo/exemplo01.my"));
       analisador.inicio();
+      System.out.println(" Fim Exemplo de c\u00f3digo 01");
+      System.out.println("\r\n");
+
+ System.out.println(" Inicio Exemplo de c\u00f3digo 02");
+      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo02.my"));
+      analisador.inicio();
+      System.out.println(" Fim Exemplo de c\u00f3digo 02");
+      System.out.println("\r\n");
+      
+      System.out.println(" Inicio Exemplo de c\u00f3digo 03");
+      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo03.my"));
+      analisador.inicio();
+      System.out.println(" Fim Exemplo de c\u00f3digo 03");
+      System.out.println("\r\n");
+      
+      System.out.println(" Inicio Exemplo de c\u00f3digo 04");
+      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo04.my"));
+      analisador.inicio();
+      System.out.println(" Fim Exemplo de c\u00f3digo 04");
+      System.out.println("\r\n");
+      
+      System.out.println(" Inicio Exemplo de c\u00f3digo 05");
+      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo05.my"));
+      analisador.inicio();
+      System.out.println(" Fim Exemplo de c\u00f3digo 05");
+      System.out.println("\r\n");
     }
     catch (FileNotFoundException e)
     {
@@ -45,26 +72,28 @@ SKIP :
 | "\n"
 }
 
-SKIP :
-{
-  "/*" : comentario
+
+SKIP : {
+   "/*" : comentariomult
 }
 
-< comentario >
-SKIP :
-{
-  "*/" : DEFAULT
+<comentariomult> SKIP: {
+   "*/" : DEFAULT |
+   <~[]>
 }
 
-TOKEN [ IGNORE_CASE ] :
-{
-  < EXIBE : "exibe" >
+SKIP : {
+   "//" : comentariosimples
+}
+
+<comentariosimples> SKIP: {
+    <["\n","\r"]> : DEFAULT |
+   <~[]>
 }
 
 TOKEN :
 {
-  < COMMENT : "//" >
-| 	
+  	
   < PT_VIRG : ";" >
 | 
   < ATRIB : ":=" >
@@ -72,9 +101,9 @@ TOKEN :
 
 TOKEN :
 {
-  < STRING_TYPE : "string" >
+  < STRING_TYPE : "String" >
 | 
-  < INTEGER_TYPE : "integer" >
+  < INTEGER_TYPE : "Integer" >
 }
 
 TOKEN :
@@ -120,8 +149,6 @@ TOKEN :
   //'#' indica que é um token privado, usado só na construção da AL
 }
 
-
-
 TOKEN :
 {
   < MAIS : "+" >
@@ -131,14 +158,14 @@ TOKEN :
 | < POT : "^" >
 | < IGUAL : "==" >
 | < MAIOR_IGUAL : ">=" >
-| < MAIOR: ">">
-| < MENOR: "< ">
+| < MAIOR : ">" >
+| < MENOR : "< " >
 | < MENOR_IGUAL : "<=" >
 | < DIFERENTE : "!=" >
 | < SC_AND : "&&" >
 | < SC_OR : "||" >
 | < NEGACAO : "!" >
-| < CONCATENAR : "#" >
+| < CONCAT : "#" >
 | < PAR_E : "(" >
 | < PAR_D : ")" >
 }
@@ -164,7 +191,7 @@ void comando() :
   declararVar()
 | atribuirVar()
 | print()
-| read ()
+| read()
 | concat()
 | whileComando()
 | ifComando()
@@ -173,13 +200,9 @@ void comando() :
 void declararVar() :
 {}
 {
-  //TODO: criar declarações multiplas
-  // string teste, teste1, teste4; integer teste, teste3;
-
-
-  //string teste; OU string teste := 'olá';
-  //integer teste; OU integer teste := 10;
-  //integer soma := 1+2;
+  //String teste; OU String teste := 'olá';
+  //Integer teste; OU Integer teste := 10;
+  //Integer soma := 1+2;
   type() atribuirVar()
 }
 
@@ -188,32 +211,60 @@ void atribuirVar() :
 {
   // teste; OU teste := 'olá';
   // teste; OU teste := 10;
-  //integer soma := 1+2;
-  < IDENT >(< ATRIB > (< STRING >| exp()))?
+  // Integer soma := 1+2;
+  < IDENT >
+  (
+    < ATRIB >
+    (
+      < STRING >
+      (
+        concatAtrib()
+      )?
+    | exp()
+      (
+        concatAtrib()
+      )?
+    )
+  )?
 }
 
 void concat() :
 {}
 {
-   < STRING > (< CONCATENAR > < STRING >)+
+  < STRING > concatAtrib()
 }
 
-//necessário fazer o condicional ex.: while(x==true)(...)endWhile
+void concatAtrib() :
+{}
+{
+  (
+    < CONCAT >
+    (
+      < STRING >
+    | exp()
+    )
+  )+
+}
+
 void whileComando() :
 {}
 {
-  < WHILE >  <DO> (
+  < WHILE > < PAR_E > exp() < PAR_D > < DO >
+  (
     linhaComando()
-  )* < ENDWHILE >
+  )*
+  < ENDWHILE >
 }
 
-void ifComando(): {}
+void ifComando() :
+{}
 {
-
-<IF> <ENTAO> 
-	(linhaComando())*
-	(<ELSE> (linhaComando())* )?
-<ENDIF>
+  < IF > < PAR_E > exp() < PAR_D > < ENTAO >
+  (
+    linhaComando()
+  )*
+  ( < ELSE >(linhaComando())* )?
+  < ENDIF >
 }
 
 void type() :
@@ -226,67 +277,82 @@ void type() :
 void exp() :
 {}
 {
-  expAnd() ( <SC_OR> expAnd() )*
+  expAnd()
+  (
+    < SC_OR > expAnd()
+  )*
 }
 
-void expAnd(): {}
+void expAnd() :
+{}
 {
-	expRelac()(<SC_AND> expRelac())*
+  expRelac()
+  (
+    < SC_AND > expRelac()
+  )*
 }
 
 void expRelac() :
 {}
 {
- 	expAdt()
- 	(
-	<IGUAL>expAdt()|
-	<DIFERENTE>expAdt()|
-	<MAIOR_IGUAL>expAdt()|
-	<MENOR_IGUAL>expAdt()|
-	<MAIOR>expAdt()|
-	<MENOR>expAdt()
-
- 	)*
-
-
+  expAdt()
+  (
+    < IGUAL > expAdt()
+  | 
+    < DIFERENTE > expAdt()
+  | 
+    < MAIOR_IGUAL > expAdt()
+  | 
+    < MENOR_IGUAL > expAdt()
+  | 
+    < MAIOR > expAdt()
+  | 
+    < MENOR > expAdt()
+  )*
 }
 
 void expAdt() :
 {}
 {
- 	expMult()
- 	(
-	<MAIS>expMult()|
-	<MENOS>expMult()
- 	)*
+  expMult()
+  (
+    < MAIS > expMult()
+  | 
+    < MENOS > expMult()
+  )*
 }
 
 void expMult() :
 {}
 {
- exptNot()
- 	(
-	<MULT>expPotenc()|
-	<DIVID>expPotenc()
- 	)*
+  expPotenc()
+  (
+    < MULT > expPotenc()
+  | 
+    < DIVID > expPotenc()
+  )*
 }
 
-void expPotenc(): {}
-{
-	exptNot()(exptNot()<POT>)*
-}
-
-void exptNot():
+void expPotenc() :
 {}
 {
-	expParent()(<NEGACAO>expParent())*
+  exptNot()
+  (
+    < POT > exptNot()
+  )*
+}
+
+void exptNot() :
+{}
+{
+  (< NEGACAO >)? expParent()
 }
 
 void expParent() :
 {}
 {
-  "("exp()")"
-|   < IDENT >
+  < PAR_E > exp() < PAR_D >
+| < IDENT >
 | < INTEGER >
 }
 
@@ -300,16 +366,18 @@ void operador() :
 | < POT >
 }
 
-void print(): {}
+void print() :
+{}
 {
-
-<PRINT> (exp() | <STRING>)
-
+  < PRINT >
+  ( exp()| < STRING > )
 }
 
-void read(): {}
+void read() :
+{}
 {
-
-<READ> (type())? <IDENT>
-
+  < READ >
+  (  <STRING> ",")?
+  (type())?
+  < IDENT >
 }

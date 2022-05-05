@@ -1,0 +1,5 @@
+String palavra := "aa" # "bb" # "CC";
+if(1!=0) entao
+	print "Abacate";
+	print palavra;
+endIf;
