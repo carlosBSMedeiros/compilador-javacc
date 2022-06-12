@@ -13,7 +13,7 @@ public class Compilador implements CompiladorConstants {
       System.out.println(" Fim Exemplo de c\u00f3digo 01");
       System.out.println("\u005cr\u005cn");
 
- System.out.println(" Inicio Exemplo de c\u00f3digo 02");
+          System.out.println(" Inicio Exemplo de c\u00f3digo 02");
       analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo02.my"));
       analisador.inicio();
       System.out.println(" Fim Exemplo de c\u00f3digo 02");
