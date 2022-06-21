@@ -12,42 +12,25 @@ import java.io.*;
 
 public class Compilador
 {
+    static TabelaSimbolos tabela = new TabelaSimbolos();
+  	static int quantidadeExemplos = 1;
   public static void main(String args []) throws ParseException
   {
     Compilador analisador = null;
-    try
-    {
-      System.out.println(" Inicio Exemplo de c\u00f3digo 01");
-      analisador = new Compilador(new FileInputStream("codigos_exemplo/exemplo01.my"));
-      analisador.inicio();
-      System.out.println(" Fim Exemplo de c\u00f3digo 01");
-      System.out.println("\r\n");
-
- 	  System.out.println(" Inicio Exemplo de c\u00f3digo 02");
-      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo02.my"));
-      analisador.inicio();
-      System.out.println(" Fim Exemplo de c\u00f3digo 02");
-      System.out.println("\r\n");
-      
-      System.out.println(" Inicio Exemplo de c\u00f3digo 03");
-      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo03.my"));
-      analisador.inicio();
-      System.out.println(" Fim Exemplo de c\u00f3digo 03");
-      System.out.println("\r\n");
-      
-      System.out.println(" Inicio Exemplo de c\u00f3digo 04");
-      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo04.my"));
-      analisador.inicio();
-      System.out.println(" Fim Exemplo de c\u00f3digo 04");
-      System.out.println("\r\n");
-      
-      System.out.println(" Inicio Exemplo de c\u00f3digo 05");
-      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo05.my"));
-      analisador.inicio();
-      System.out.println(" Fim Exemplo de c\u00f3digo 05");
-      System.out.println("\r\n");
-    }
-    catch (FileNotFoundException e)
+    try {
+      	analisador = new Compilador(new FileInputStream("codigos_exemplo/exemplo01.my"));
+     
+		for(int i = 1; i <= quantidadeExemplos; i++) {
+		  	String nomeArquivo = "codigos_exemplo/exemplo0"+i+".my";
+			tabela.limparTabela();
+	     	System.out.println("Inicio Exemplo de codigo " + i);
+	      	analisador.ReInit(new FileInputStream(nomeArquivo));
+	 	 	analisador.inicio();
+	      	System.out.println(" Fim Exemplo de codigo "+i+"\r\n");
+	 	 	System.out.println(tabela.toString());
+	    }
+	    
+  	}catch (FileNotFoundException e)
     {
       System.out.println("Erro: arquivo nao encontrado");
     }
@@ -59,6 +42,18 @@ public class Compilador
     {
       System.out.println("Erro sintatico" + e.getMessage());
     }
+    catch (ErroSemanticoException e) {
+		System.out.println(e.getMessage());
+    }
+    
+  }
+
+  public static void verificarTipo(char tipo, Token t) throws ErroSemanticoException{
+		if(tipo == 'S') {
+             if(!t.image.startsWith("\"") || !t.image.endsWith("\"") ) {
+				throw new ErroSemanticoException("Erro semantico -> tipo \"String\" necessita de \"\" no começo e fim da declaração ");
+			}
+		  }
   }
 }
 
@@ -170,7 +165,7 @@ TOKEN :
 | < PAR_D : ")" >
 }
 
-void inicio() :
+void inicio() throws ErroSemanticoException:
 {}
 {
   (
@@ -179,17 +174,17 @@ void inicio() :
   < EOF >
 }
 
-void linhaComando() :
+void linhaComando() throws ErroSemanticoException:
 {}
 {
   comando() < PT_VIRG >
 }
 
-void comando() :
+void comando() throws ErroSemanticoException:
 {}
 {
   declararVar()
-| atribuirVar()
+| reatribuirVar()
 | print()
 | read()
 | concat()
@@ -197,24 +192,59 @@ void comando() :
 | ifComando()
 }
 
-void declararVar() :
-{}
+void declararVar() throws ErroSemanticoException:
+{Simbolo simb; Token t; char tipo; Token conteudoVar = new Token();}
 {
   //String teste; OU String teste := 'olá';
   //Integer teste; OU Integer teste := 10;
   //Integer soma := 1+2;
-  type() atribuirVar()
+  
+  	 ( < STRING_TYPE > {tipo = 'S';} | < INTEGER_TYPE > {tipo = 'I';} ) 
+
+	  t=< IDENT >
+	  {
+	    simb = new Simbolo(t.image, tipo);
+	    tabela.inclui(simb);
+	    simb.setInicializada('n');
+	  }
+  (
+    < ATRIB > /*se houver <ATRIB> variavel inicializada */ { simb.setInicializada('s'); }
+
+    (
+      conteudoVar = < STRING > ( concatAtrib() )?
+		{
+		  verificarTipo(tipo, conteudoVar);
+		}
+      |
+      exp() ( concatAtrib() )?
+	      {
+		verificarTipo(tipo, conteudoVar);
+	      }
+	)
+
+  
+  )?
+
+   
 }
 
-void atribuirVar() :
-{}
+void reatribuirVar() throws ErroSemanticoException:
+{Simbolo s; Token t;}
 {
-  // teste; OU teste := 'olá';
-  // teste; OU teste := 10;
-  // Integer soma := 1+2;
-  < IDENT >
-  (
+	  t=< IDENT >
+	  {
+	   if(!tabela.isExiste(t.image)) {
+			throw new ErroSemanticoException("Erro semantico -> Variavel " +t.image+ " nao foi declarada");
+		} else {
+			if(!tabela.foiInicializada(t.image)) {
+				tabela.inicializarSimbolo(t.image);
+			}
+		}
+	  }
+ 
     < ATRIB >
+	
+	 
     (
       < STRING >
       (
@@ -225,16 +255,17 @@ void atribuirVar() :
         concatAtrib()
       )?
     )
-  )?
+  
 }
 
-void concat() :
+
+void concat() throws ErroSemanticoException:
 {}
 {
   < STRING > concatAtrib()
 }
 
-void concatAtrib() :
+void concatAtrib() throws ErroSemanticoException:
 {}
 {
   (
@@ -246,7 +277,7 @@ void concatAtrib() :
   )+
 }
 
-void whileComando() :
+void whileComando() throws ErroSemanticoException:
 {}
 {
   < WHILE > < PAR_E > exp() < PAR_D > < DO >
@@ -256,7 +287,7 @@ void whileComando() :
   < ENDWHILE >
 }
 
-void ifComando() :
+void ifComando() throws ErroSemanticoException:
 {}
 {
   < IF > < PAR_E > exp() < PAR_D > < ENTAO >
@@ -267,14 +298,14 @@ void ifComando() :
   < ENDIF >
 }
 
-void type() :
+void type():
 {}
 {
   < STRING_TYPE >
 | < INTEGER_TYPE >
 }
 
-void exp() :
+void exp() throws ErroSemanticoException:
 {}
 {
   expAnd()
@@ -283,7 +314,7 @@ void exp() :
   )*
 }
 
-void expAnd() :
+void expAnd() throws ErroSemanticoException:
 {}
 {
   expRelac()
@@ -292,7 +323,7 @@ void expAnd() :
   )*
 }
 
-void expRelac() :
+void expRelac() throws ErroSemanticoException:
 {}
 {
   expAdt()
@@ -311,7 +342,7 @@ void expRelac() :
   )*
 }
 
-void expAdt() :
+void expAdt() throws ErroSemanticoException:
 {}
 {
   expMult()
@@ -322,7 +353,7 @@ void expAdt() :
   )*
 }
 
-void expMult() :
+void expMult() throws ErroSemanticoException:
 {}
 {
   expPotenc()
@@ -333,7 +364,7 @@ void expMult() :
   )*
 }
 
-void expPotenc() :
+void expPotenc() throws ErroSemanticoException:
 {}
 {
   exptNot()
@@ -342,21 +373,32 @@ void expPotenc() :
   )*
 }
 
-void exptNot() :
+void exptNot() throws ErroSemanticoException:
 {}
 {
   (< NEGACAO >)? expParent()
 }
 
-void expParent() :
-{}
+void expParent() throws ErroSemanticoException:
+{Token t;}
 {
   < PAR_E > exp() < PAR_D >
-| < IDENT >
+| t=< IDENT >
+
+	{
+ 		if(!tabela.isExiste(t.image))
+        	throw new ErroSemanticoException("Erro semantico -> Variavel "+t.image+ " nao foi declarada");
+        if(!tabela.foiInicializada(t.image)) 
+          	throw new ErroSemanticoException("Erro semantico -> Variavel "+t.image+ " nao foi inicializada");
+        if( tabela.getSimb(t.image).getTipo() == 'S' ) {
+          	throw new ErroSemanticoException("Erro semantico -> Variavel "+t.image+ " deve ser do tipo Integer ");
+		}
+	}
+
 | < INTEGER >
 }
 
-void operador() :
+void operador() throws ErroSemanticoException:
 {}
 {
   < MAIS >
@@ -366,7 +408,7 @@ void operador() :
 | < POT >
 }
 
-void print() :
+void print() throws ErroSemanticoException:
 {}
 {
   < PRINT >

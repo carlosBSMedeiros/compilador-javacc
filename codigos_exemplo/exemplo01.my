@@ -1,6 +1,12 @@
 //exemplo de código com If
 
+String a := "teste";
+Integer variavelT2 := "a";
+
+/*
 Integer condicaoTeste := 3+5;
+String declarar;
+String teste := "minha string " # " de testes";
 
 if(10 > condicaoTeste && !( (5>8) || (10!=7) )  ) entao
     if(1==2)entao
@@ -9,3 +15,4 @@ if(10 > condicaoTeste && !( (5>8) || (10!=7) )  ) entao
         print "1 não é igual a 2";
     endIf;
 endIf;
+*/

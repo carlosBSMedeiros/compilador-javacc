@@ -2,42 +2,25 @@
 import java.io.*;
 
 public class Compilador implements CompiladorConstants {
+    static TabelaSimbolos tabela = new TabelaSimbolos();
+        static int quantidadeExemplos = 1;
   public static void main(String args []) throws ParseException
   {
     Compilador analisador = null;
-    try
-    {
-      System.out.println(" Inicio Exemplo de c\u00f3digo 01");
-      analisador = new Compilador(new FileInputStream("codigos_exemplo/exemplo01.my"));
-      analisador.inicio();
-      System.out.println(" Fim Exemplo de c\u00f3digo 01");
-      System.out.println("\u005cr\u005cn");
+    try {
+        analisador = new Compilador(new FileInputStream("codigos_exemplo/exemplo01.my"));
 
-          System.out.println(" Inicio Exemplo de c\u00f3digo 02");
-      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo02.my"));
-      analisador.inicio();
-      System.out.println(" Fim Exemplo de c\u00f3digo 02");
-      System.out.println("\u005cr\u005cn");
+                for(int i = 1; i <= quantidadeExemplos; i++) {
+                        String nomeArquivo = "codigos_exemplo/exemplo0"+i+".my";
+                        tabela.limparTabela();
+                System.out.println("Inicio Exemplo de codigo " + i);
+                analisador.ReInit(new FileInputStream(nomeArquivo));
+                        analisador.inicio();
+                System.out.println(" Fim Exemplo de codigo "+i+"\u005cr\u005cn");
+                        System.out.println(tabela.toString());
+            }
 
-      System.out.println(" Inicio Exemplo de c\u00f3digo 03");
-      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo03.my"));
-      analisador.inicio();
-      System.out.println(" Fim Exemplo de c\u00f3digo 03");
-      System.out.println("\u005cr\u005cn");
-
-      System.out.println(" Inicio Exemplo de c\u00f3digo 04");
-      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo04.my"));
-      analisador.inicio();
-      System.out.println(" Fim Exemplo de c\u00f3digo 04");
-      System.out.println("\u005cr\u005cn");
-
-      System.out.println(" Inicio Exemplo de c\u00f3digo 05");
-      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo05.my"));
-      analisador.inicio();
-      System.out.println(" Fim Exemplo de c\u00f3digo 05");
-      System.out.println("\u005cr\u005cn");
-    }
-    catch (FileNotFoundException e)
+        }catch (FileNotFoundException e)
     {
       System.out.println("Erro: arquivo nao encontrado");
     }
@@ -49,9 +32,21 @@ public class Compilador implements CompiladorConstants {
     {
       System.out.println("Erro sintatico" + e.getMessage());
     }
+    catch (ErroSemanticoException e) {
+                System.out.println(e.getMessage());
+    }
+
   }
 
-  static final public void inicio() throws ParseException {
+  public static void verificarTipo(char tipo, Token t) throws ErroSemanticoException{
+                if(tipo == 'S') {
+             if(!t.image.startsWith("\u005c"") || !t.image.endsWith("\u005c"") ) {
+                                throw new ErroSemanticoException("Erro semantico -> tipo \u005c"String\u005c" necessita de \u005c"\u005c" no come\u00c3\u00a7o e fim da declara\u00c3\u00a7\u00c3\u00a3o ");
+                        }
+                  }
+  }
+
+  static final public void inicio() throws ParseException, ErroSemanticoException {
     trace_call("inicio");
     try {
       label_1:
@@ -79,7 +74,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void linhaComando() throws ParseException {
+  static final public void linhaComando() throws ParseException, ErroSemanticoException {
     trace_call("linhaComando");
     try {
       comando();
@@ -89,7 +84,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void comando() throws ParseException {
+  static final public void comando() throws ParseException, ErroSemanticoException {
     trace_call("comando");
     try {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -98,7 +93,7 @@ public class Compilador implements CompiladorConstants {
         declararVar();
         break;
       case IDENT:
-        atribuirVar();
+        reatribuirVar();
         break;
       case PRINT:
         print();
@@ -125,34 +120,44 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void declararVar() throws ParseException {
+  static final public void declararVar() throws ParseException, ErroSemanticoException {
     trace_call("declararVar");
     try {
-      type();
-      atribuirVar();
-    } finally {
-      trace_return("declararVar");
-    }
-  }
-
-  static final public void atribuirVar() throws ParseException {
-    trace_call("atribuirVar");
-    try {
-      jj_consume_token(IDENT);
+ Simbolo simb; Token t; char tipo; Token conteudoVar = new Token();
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case STRING_TYPE:
+        jj_consume_token(STRING_TYPE);
+                            tipo = 'S';
+        break;
+      case INTEGER_TYPE:
+        jj_consume_token(INTEGER_TYPE);
+                                                             tipo = 'I';
+        break;
+      default:
+        jj_la1[2] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+      t = jj_consume_token(IDENT);
+            simb = new Simbolo(t.image, tipo);
+            tabela.inclui(simb);
+            simb.setInicializada('n');
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case ATRIB:
         jj_consume_token(ATRIB);
+                                                             simb.setInicializada('s');
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case STRING:
-          jj_consume_token(STRING);
+          conteudoVar = jj_consume_token(STRING);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case CONCAT:
             concatAtrib();
             break;
           default:
-            jj_la1[2] = jj_gen;
+            jj_la1[3] = jj_gen;
             ;
           }
+                  verificarTipo(tipo, conteudoVar);
           break;
         case IDENT:
         case INTEGER:
@@ -164,26 +169,76 @@ public class Compilador implements CompiladorConstants {
             concatAtrib();
             break;
           default:
-            jj_la1[3] = jj_gen;
+            jj_la1[4] = jj_gen;
             ;
           }
+                verificarTipo(tipo, conteudoVar);
           break;
         default:
-          jj_la1[4] = jj_gen;
+          jj_la1[5] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
         break;
       default:
-        jj_la1[5] = jj_gen;
+        jj_la1[6] = jj_gen;
         ;
       }
     } finally {
-      trace_return("atribuirVar");
+      trace_return("declararVar");
     }
   }
 
-  static final public void concat() throws ParseException {
+  static final public void reatribuirVar() throws ParseException, ErroSemanticoException {
+    trace_call("reatribuirVar");
+    try {
+ Simbolo s; Token t;
+      t = jj_consume_token(IDENT);
+           if(!tabela.isExiste(t.image)) {
+                        {if (true) throw new ErroSemanticoException("Erro semantico -> Variavel " +t.image+ " nao foi declarada");}
+                } else {
+                        if(!tabela.foiInicializada(t.image)) {
+                                tabela.inicializarSimbolo(t.image);
+                        }
+                }
+      jj_consume_token(ATRIB);
+      switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+      case STRING:
+        jj_consume_token(STRING);
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case CONCAT:
+          concatAtrib();
+          break;
+        default:
+          jj_la1[7] = jj_gen;
+          ;
+        }
+        break;
+      case IDENT:
+      case INTEGER:
+      case NEGACAO:
+      case PAR_E:
+        exp();
+        switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
+        case CONCAT:
+          concatAtrib();
+          break;
+        default:
+          jj_la1[8] = jj_gen;
+          ;
+        }
+        break;
+      default:
+        jj_la1[9] = jj_gen;
+        jj_consume_token(-1);
+        throw new ParseException();
+      }
+    } finally {
+      trace_return("reatribuirVar");
+    }
+  }
+
+  static final public void concat() throws ParseException, ErroSemanticoException {
     trace_call("concat");
     try {
       jj_consume_token(STRING);
@@ -193,7 +248,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void concatAtrib() throws ParseException {
+  static final public void concatAtrib() throws ParseException, ErroSemanticoException {
     trace_call("concatAtrib");
     try {
       label_2:
@@ -210,7 +265,7 @@ public class Compilador implements CompiladorConstants {
           exp();
           break;
         default:
-          jj_la1[6] = jj_gen;
+          jj_la1[10] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -219,7 +274,7 @@ public class Compilador implements CompiladorConstants {
           ;
           break;
         default:
-          jj_la1[7] = jj_gen;
+          jj_la1[11] = jj_gen;
           break label_2;
         }
       }
@@ -228,7 +283,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void whileComando() throws ParseException {
+  static final public void whileComando() throws ParseException, ErroSemanticoException {
     trace_call("whileComando");
     try {
       jj_consume_token(WHILE);
@@ -250,7 +305,7 @@ public class Compilador implements CompiladorConstants {
           ;
           break;
         default:
-          jj_la1[8] = jj_gen;
+          jj_la1[12] = jj_gen;
           break label_3;
         }
         linhaComando();
@@ -261,7 +316,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void ifComando() throws ParseException {
+  static final public void ifComando() throws ParseException, ErroSemanticoException {
     trace_call("ifComando");
     try {
       jj_consume_token(IF);
@@ -283,7 +338,7 @@ public class Compilador implements CompiladorConstants {
           ;
           break;
         default:
-          jj_la1[9] = jj_gen;
+          jj_la1[13] = jj_gen;
           break label_4;
         }
         linhaComando();
@@ -305,14 +360,14 @@ public class Compilador implements CompiladorConstants {
             ;
             break;
           default:
-            jj_la1[10] = jj_gen;
+            jj_la1[14] = jj_gen;
             break label_5;
           }
           linhaComando();
         }
         break;
       default:
-        jj_la1[11] = jj_gen;
+        jj_la1[15] = jj_gen;
         ;
       }
       jj_consume_token(ENDIF);
@@ -332,7 +387,7 @@ public class Compilador implements CompiladorConstants {
         jj_consume_token(INTEGER_TYPE);
         break;
       default:
-        jj_la1[12] = jj_gen;
+        jj_la1[16] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -341,7 +396,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void exp() throws ParseException {
+  static final public void exp() throws ParseException, ErroSemanticoException {
     trace_call("exp");
     try {
       expAnd();
@@ -352,7 +407,7 @@ public class Compilador implements CompiladorConstants {
           ;
           break;
         default:
-          jj_la1[13] = jj_gen;
+          jj_la1[17] = jj_gen;
           break label_6;
         }
         jj_consume_token(SC_OR);
@@ -363,7 +418,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void expAnd() throws ParseException {
+  static final public void expAnd() throws ParseException, ErroSemanticoException {
     trace_call("expAnd");
     try {
       expRelac();
@@ -374,7 +429,7 @@ public class Compilador implements CompiladorConstants {
           ;
           break;
         default:
-          jj_la1[14] = jj_gen;
+          jj_la1[18] = jj_gen;
           break label_7;
         }
         jj_consume_token(SC_AND);
@@ -385,7 +440,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void expRelac() throws ParseException {
+  static final public void expRelac() throws ParseException, ErroSemanticoException {
     trace_call("expRelac");
     try {
       expAdt();
@@ -401,7 +456,7 @@ public class Compilador implements CompiladorConstants {
           ;
           break;
         default:
-          jj_la1[15] = jj_gen;
+          jj_la1[19] = jj_gen;
           break label_8;
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -430,7 +485,7 @@ public class Compilador implements CompiladorConstants {
           expAdt();
           break;
         default:
-          jj_la1[16] = jj_gen;
+          jj_la1[20] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -440,7 +495,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void expAdt() throws ParseException {
+  static final public void expAdt() throws ParseException, ErroSemanticoException {
     trace_call("expAdt");
     try {
       expMult();
@@ -452,7 +507,7 @@ public class Compilador implements CompiladorConstants {
           ;
           break;
         default:
-          jj_la1[17] = jj_gen;
+          jj_la1[21] = jj_gen;
           break label_9;
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -465,7 +520,7 @@ public class Compilador implements CompiladorConstants {
           expMult();
           break;
         default:
-          jj_la1[18] = jj_gen;
+          jj_la1[22] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -475,7 +530,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void expMult() throws ParseException {
+  static final public void expMult() throws ParseException, ErroSemanticoException {
     trace_call("expMult");
     try {
       expPotenc();
@@ -487,7 +542,7 @@ public class Compilador implements CompiladorConstants {
           ;
           break;
         default:
-          jj_la1[19] = jj_gen;
+          jj_la1[23] = jj_gen;
           break label_10;
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -500,7 +555,7 @@ public class Compilador implements CompiladorConstants {
           expPotenc();
           break;
         default:
-          jj_la1[20] = jj_gen;
+          jj_la1[24] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
@@ -510,7 +565,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void expPotenc() throws ParseException {
+  static final public void expPotenc() throws ParseException, ErroSemanticoException {
     trace_call("expPotenc");
     try {
       exptNot();
@@ -521,7 +576,7 @@ public class Compilador implements CompiladorConstants {
           ;
           break;
         default:
-          jj_la1[21] = jj_gen;
+          jj_la1[25] = jj_gen;
           break label_11;
         }
         jj_consume_token(POT);
@@ -532,7 +587,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void exptNot() throws ParseException {
+  static final public void exptNot() throws ParseException, ErroSemanticoException {
     trace_call("exptNot");
     try {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -540,7 +595,7 @@ public class Compilador implements CompiladorConstants {
         jj_consume_token(NEGACAO);
         break;
       default:
-        jj_la1[22] = jj_gen;
+        jj_la1[26] = jj_gen;
         ;
       }
       expParent();
@@ -549,9 +604,10 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void expParent() throws ParseException {
+  static final public void expParent() throws ParseException, ErroSemanticoException {
     trace_call("expParent");
     try {
+ Token t;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case PAR_E:
         jj_consume_token(PAR_E);
@@ -559,13 +615,20 @@ public class Compilador implements CompiladorConstants {
         jj_consume_token(PAR_D);
         break;
       case IDENT:
-        jj_consume_token(IDENT);
+        t = jj_consume_token(IDENT);
+                if(!tabela.isExiste(t.image))
+                {if (true) throw new ErroSemanticoException("Erro semantico -> Variavel "+t.image+ " nao foi declarada");}
+        if(!tabela.foiInicializada(t.image))
+                {if (true) throw new ErroSemanticoException("Erro semantico -> Variavel "+t.image+ " nao foi inicializada");}
+        if( tabela.getSimb(t.image).getTipo() == 'S' ) {
+                {if (true) throw new ErroSemanticoException("Erro semantico -> Variavel "+t.image+ " deve ser do tipo Integer ");}
+                }
         break;
       case INTEGER:
         jj_consume_token(INTEGER);
         break;
       default:
-        jj_la1[23] = jj_gen;
+        jj_la1[27] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -574,7 +637,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void operador() throws ParseException {
+  static final public void operador() throws ParseException, ErroSemanticoException {
     trace_call("operador");
     try {
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -594,7 +657,7 @@ public class Compilador implements CompiladorConstants {
         jj_consume_token(POT);
         break;
       default:
-        jj_la1[24] = jj_gen;
+        jj_la1[28] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -603,7 +666,7 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void print() throws ParseException {
+  static final public void print() throws ParseException, ErroSemanticoException {
     trace_call("print");
     try {
       jj_consume_token(PRINT);
@@ -618,7 +681,7 @@ public class Compilador implements CompiladorConstants {
         jj_consume_token(STRING);
         break;
       default:
-        jj_la1[25] = jj_gen;
+        jj_la1[29] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
@@ -637,7 +700,7 @@ public class Compilador implements CompiladorConstants {
         jj_consume_token(46);
         break;
       default:
-        jj_la1[26] = jj_gen;
+        jj_la1[30] = jj_gen;
         ;
       }
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -646,7 +709,7 @@ public class Compilador implements CompiladorConstants {
         type();
         break;
       default:
-        jj_la1[27] = jj_gen;
+        jj_la1[31] = jj_gen;
         ;
       }
       jj_consume_token(IDENT);
@@ -665,7 +728,7 @@ public class Compilador implements CompiladorConstants {
   static public Token jj_nt;
   static private int jj_ntk;
   static private int jj_gen;
-  static final private int[] jj_la1 = new int[28];
+  static final private int[] jj_la1 = new int[32];
   static private int[] jj_la1_0;
   static private int[] jj_la1_1;
   static {
@@ -673,10 +736,10 @@ public class Compilador implements CompiladorConstants {
       jj_la1_init_1();
    }
    private static void jj_la1_init_0() {
-      jj_la1_0 = new int[] {0x323e000,0x323e000,0x0,0x0,0x7000000,0x1000,0x7000000,0x0,0x323e000,0x323e000,0x323e000,0x80000,0x6000,0x0,0x0,0x0,0x0,0x60000000,0x60000000,0x80000000,0x80000000,0x0,0x0,0x5000000,0xe0000000,0x7000000,0x2000000,0x6000,};
+      jj_la1_0 = new int[] {0x323e000,0x323e000,0x6000,0x0,0x0,0x7000000,0x1000,0x0,0x0,0x7000000,0x7000000,0x0,0x323e000,0x323e000,0x323e000,0x80000,0x6000,0x0,0x0,0x0,0x0,0x60000000,0x60000000,0x80000000,0x80000000,0x0,0x0,0x5000000,0xe0000000,0x7000000,0x2000000,0x6000,};
    }
    private static void jj_la1_init_1() {
-      jj_la1_1 = new int[] {0x0,0x0,0x800,0x800,0x1400,0x0,0x1400,0x800,0x0,0x0,0x0,0x0,0x0,0x200,0x100,0xfc,0xfc,0x0,0x0,0x1,0x1,0x2,0x400,0x1000,0x3,0x1400,0x0,0x0,};
+      jj_la1_1 = new int[] {0x0,0x0,0x0,0x800,0x800,0x1400,0x0,0x800,0x800,0x1400,0x1400,0x800,0x0,0x0,0x0,0x0,0x0,0x200,0x100,0xfc,0xfc,0x0,0x0,0x1,0x1,0x2,0x400,0x1000,0x3,0x1400,0x0,0x0,};
    }
 
   /** Constructor with InputStream. */
@@ -697,7 +760,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 32; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -711,7 +774,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 32; i++) jj_la1[i] = -1;
   }
 
   /** Constructor. */
@@ -728,7 +791,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 32; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -738,7 +801,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 32; i++) jj_la1[i] = -1;
   }
 
   /** Constructor with generated Token Manager. */
@@ -754,7 +817,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 32; i++) jj_la1[i] = -1;
   }
 
   /** Reinitialise. */
@@ -763,7 +826,7 @@ public class Compilador implements CompiladorConstants {
     token = new Token();
     jj_ntk = -1;
     jj_gen = 0;
-    for (int i = 0; i < 28; i++) jj_la1[i] = -1;
+    for (int i = 0; i < 32; i++) jj_la1[i] = -1;
   }
 
   static private Token jj_consume_token(int kind) throws ParseException {
@@ -821,7 +884,7 @@ public class Compilador implements CompiladorConstants {
       la1tokens[jj_kind] = true;
       jj_kind = -1;
     }
-    for (int i = 0; i < 28; i++) {
+    for (int i = 0; i < 32; i++) {
       if (jj_la1[i] == jj_gen) {
         for (int j = 0; j < 32; j++) {
           if ((jj_la1_0[i] & (1<<j)) != 0) {

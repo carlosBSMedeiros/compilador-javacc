@@ -1,0 +1,23 @@
+ System.out.println(" Inicio Exemplo de c\u00f3digo 02");
+      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo02.my"));
+      analisador.inicio();
+      System.out.println(" Fim Exemplo de c\u00f3digo 02");
+      System.out.println("\r\n");
+      
+      System.out.println(" Inicio Exemplo de c\u00f3digo 03");
+      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo03.my"));
+      analisador.inicio();
+      System.out.println(" Fim Exemplo de c\u00f3digo 03");
+      System.out.println("\r\n");
+      
+      System.out.println(" Inicio Exemplo de c\u00f3digo 04");
+      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo04.my"));
+      analisador.inicio();
+      System.out.println(" Fim Exemplo de c\u00f3digo 04");
+      System.out.println("\r\n");
+      
+      System.out.println(" Inicio Exemplo de c\u00f3digo 05");
+      analisador.ReInit(new FileInputStream("codigos_exemplo/exemplo05.my"));
+      analisador.inicio();
+      System.out.println(" Fim Exemplo de c\u00f3digo 05");
+      System.out.println("\r\n");
