@@ -193,15 +193,17 @@ public class Compilador implements CompiladorConstants {
   static final public void reatribuirVar() throws ParseException, ErroSemanticoException {
     trace_call("reatribuirVar");
     try {
- Simbolo s; Token t;
+ Simbolo s; Token t; char tipo; char conteudoVar;
       t = jj_consume_token(IDENT);
            if(!tabela.isExiste(t.image)) {
                         {if (true) throw new ErroSemanticoException("Erro semantico -> Variavel " +t.image+ " nao foi declarada");}
-                } else {
-                        if(!tabela.foiInicializada(t.image)) {
-                                tabela.inicializarSimbolo(t.image);
-                        }
                 }
+
+                if(!tabela.foiInicializada(t.image)) {
+                        tabela.inicializarSimbolo(t.image);
+                }
+
+                tipo = tabela.getSimb(t.image).getTipo();
       jj_consume_token(ATRIB);
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case STRING:
@@ -214,6 +216,7 @@ public class Compilador implements CompiladorConstants {
           jj_la1[7] = jj_gen;
           ;
         }
+                  conteudoVar = 'S';
         break;
       case IDENT:
       case INTEGER:
@@ -228,12 +231,14 @@ public class Compilador implements CompiladorConstants {
           jj_la1[8] = jj_gen;
           ;
         }
+                  conteudoVar = 'I';
         break;
       default:
         jj_la1[9] = jj_gen;
         jj_consume_token(-1);
         throw new ParseException();
       }
+        verificarTipo(tipo, conteudoVar, t.image);
     } finally {
       trace_return("reatribuirVar");
     }

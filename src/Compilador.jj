@@ -234,17 +234,20 @@ void declararVar() throws ErroSemanticoException:
 }
 
 void reatribuirVar() throws ErroSemanticoException:
-{Simbolo s; Token t;}
+{Simbolo s; Token t; char tipo; char conteudoVar; }
 {
 	  t=< IDENT >
 	  {
 	   if(!tabela.isExiste(t.image)) {
 			throw new ErroSemanticoException("Erro semantico -> Variavel " +t.image+ " nao foi declarada");
-		} else {
-			if(!tabela.foiInicializada(t.image)) {
-				tabela.inicializarSimbolo(t.image);
-			}
 		}
+		
+		if(!tabela.foiInicializada(t.image)) {
+			tabela.inicializarSimbolo(t.image);
+		}
+
+		tipo = tabela.getSimb(t.image).getTipo();
+		
 	  }
  
     < ATRIB >
@@ -255,11 +258,19 @@ void reatribuirVar() throws ErroSemanticoException:
       (
         concatAtrib()
       )?
+      	{
+		  conteudoVar = 'S';
+		}
     | exp()
       (
         concatAtrib()
       )?
+      {
+		  conteudoVar = 'I';
+		}
     )
+
+    {	verificarTipo(tipo, conteudoVar, t.image); }
   
 }
 
