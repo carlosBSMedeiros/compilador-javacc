@@ -38,12 +38,12 @@ public class Compilador implements CompiladorConstants {
 
   }
 
-  public static void verificarTipo(char tipo, Token t) throws ErroSemanticoException{
-                if(tipo == 'S') {
-             if(!t.image.startsWith("\u005c"") || !t.image.endsWith("\u005c"") ) {
-                                throw new ErroSemanticoException("Erro semantico -> tipo \u005c"String\u005c" necessita de \u005c"\u005c" no come\u00c3\u00a7o e fim da declara\u00c3\u00a7\u00c3\u00a3o ");
-                        }
-                  }
+  public static void verificarTipo(char tipo, char conteudoVar, String nomeVar) throws ErroSemanticoException{
+                if(tipo == 'S' && conteudoVar != 'S') {
+                        throw new ErroSemanticoException("Erro semantico -> Valor da variavel "+nomeVar+" deve ser uma String ");
+                } else if(tipo == 'I' && conteudoVar != 'I') {
+                        throw new ErroSemanticoException("Erro semantico -> Valor da variavel "+nomeVar+" deve ser um Inteiro ");
+                }
   }
 
   static final public void inicio() throws ParseException, ErroSemanticoException {
@@ -123,7 +123,7 @@ public class Compilador implements CompiladorConstants {
   static final public void declararVar() throws ParseException, ErroSemanticoException {
     trace_call("declararVar");
     try {
- Simbolo simb; Token t; char tipo; Token conteudoVar = new Token();
+ Simbolo simb; Token t; char tipo; char conteudoVar;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case STRING_TYPE:
         jj_consume_token(STRING_TYPE);
@@ -148,7 +148,7 @@ public class Compilador implements CompiladorConstants {
                                                              simb.setInicializada('s');
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case STRING:
-          conteudoVar = jj_consume_token(STRING);
+          jj_consume_token(STRING);
           switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
           case CONCAT:
             concatAtrib();
@@ -157,7 +157,7 @@ public class Compilador implements CompiladorConstants {
             jj_la1[3] = jj_gen;
             ;
           }
-                  verificarTipo(tipo, conteudoVar);
+                  conteudoVar = 'S';
           break;
         case IDENT:
         case INTEGER:
@@ -172,13 +172,14 @@ public class Compilador implements CompiladorConstants {
             jj_la1[4] = jj_gen;
             ;
           }
-                verificarTipo(tipo, conteudoVar);
+                        conteudoVar = 'I';
           break;
         default:
           jj_la1[5] = jj_gen;
           jj_consume_token(-1);
           throw new ParseException();
         }
+                verificarTipo(tipo, conteudoVar, t.image);
         break;
       default:
         jj_la1[6] = jj_gen;
@@ -399,7 +400,19 @@ public class Compilador implements CompiladorConstants {
   static final public void exp() throws ParseException, ErroSemanticoException {
     trace_call("exp");
     try {
-      expAnd();
+ ListaItem lista = new ListaItem();
+      expAux(lista);
+                System.out.println(lista.toString());
+    } finally {
+      trace_return("exp");
+    }
+  }
+
+  static final public void expAux(ListaItem lista) throws ParseException, ErroSemanticoException {
+    trace_call("expAux");
+    try {
+                                                              Token t;
+      expAnd(lista);
       label_6:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -410,18 +423,20 @@ public class Compilador implements CompiladorConstants {
           jj_la1[17] = jj_gen;
           break label_6;
         }
-        jj_consume_token(SC_OR);
-        expAnd();
+        t = jj_consume_token(SC_OR);
+        expAnd(lista);
+                lista.add(new Item('o',t.image));
       }
     } finally {
-      trace_return("exp");
+      trace_return("expAux");
     }
   }
 
-  static final public void expAnd() throws ParseException, ErroSemanticoException {
+  static final public void expAnd(ListaItem lista) throws ParseException, ErroSemanticoException {
     trace_call("expAnd");
     try {
-      expRelac();
+ Token t;
+      expRelac(lista);
       label_7:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -432,18 +447,20 @@ public class Compilador implements CompiladorConstants {
           jj_la1[18] = jj_gen;
           break label_7;
         }
-        jj_consume_token(SC_AND);
-        expRelac();
+        t = jj_consume_token(SC_AND);
+        expRelac(lista);
+                lista.add(new Item('o',t.image));
       }
     } finally {
       trace_return("expAnd");
     }
   }
 
-  static final public void expRelac() throws ParseException, ErroSemanticoException {
+  static final public void expRelac(ListaItem lista) throws ParseException, ErroSemanticoException {
     trace_call("expRelac");
     try {
-      expAdt();
+ Token t;
+      expAdt(lista);
       label_8:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -461,28 +478,34 @@ public class Compilador implements CompiladorConstants {
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case IGUAL:
-          jj_consume_token(IGUAL);
-          expAdt();
+          t = jj_consume_token(IGUAL);
+          expAdt(lista);
+     lista.add(new Item('o',t.image));
           break;
         case DIFERENTE:
-          jj_consume_token(DIFERENTE);
-          expAdt();
+          t = jj_consume_token(DIFERENTE);
+          expAdt(lista);
+     lista.add(new Item('o',t.image));
           break;
         case MAIOR_IGUAL:
-          jj_consume_token(MAIOR_IGUAL);
-          expAdt();
+          t = jj_consume_token(MAIOR_IGUAL);
+          expAdt(lista);
+     lista.add(new Item('o',t.image));
           break;
         case MENOR_IGUAL:
-          jj_consume_token(MENOR_IGUAL);
-          expAdt();
+          t = jj_consume_token(MENOR_IGUAL);
+          expAdt(lista);
+     lista.add(new Item('o',t.image));
           break;
         case MAIOR:
-          jj_consume_token(MAIOR);
-          expAdt();
+          t = jj_consume_token(MAIOR);
+          expAdt(lista);
+     lista.add(new Item('o',t.image));
           break;
         case MENOR:
-          jj_consume_token(MENOR);
-          expAdt();
+          t = jj_consume_token(MENOR);
+          expAdt(lista);
+     lista.add(new Item('o',t.image));
           break;
         default:
           jj_la1[20] = jj_gen;
@@ -495,10 +518,11 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void expAdt() throws ParseException, ErroSemanticoException {
+  static final public void expAdt(ListaItem lista) throws ParseException, ErroSemanticoException {
     trace_call("expAdt");
     try {
-      expMult();
+ Token t;
+      expMult(lista);
       label_9:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -512,12 +536,14 @@ public class Compilador implements CompiladorConstants {
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case MAIS:
-          jj_consume_token(MAIS);
-          expMult();
+          t = jj_consume_token(MAIS);
+          expMult(lista);
+     lista.add(new Item('o',t.image));
           break;
         case MENOS:
-          jj_consume_token(MENOS);
-          expMult();
+          t = jj_consume_token(MENOS);
+          expMult(lista);
+     lista.add(new Item('o',t.image));
           break;
         default:
           jj_la1[22] = jj_gen;
@@ -530,10 +556,11 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void expMult() throws ParseException, ErroSemanticoException {
+  static final public void expMult(ListaItem lista) throws ParseException, ErroSemanticoException {
     trace_call("expMult");
     try {
-      expPotenc();
+ Token t;
+      expPotenc(lista);
       label_10:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -547,12 +574,14 @@ public class Compilador implements CompiladorConstants {
         }
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
         case MULT:
-          jj_consume_token(MULT);
-          expPotenc();
+          t = jj_consume_token(MULT);
+          expPotenc(lista);
+     lista.add(new Item('o',t.image));
           break;
         case DIVID:
-          jj_consume_token(DIVID);
-          expPotenc();
+          t = jj_consume_token(DIVID);
+          expPotenc(lista);
+     lista.add(new Item('o',t.image));
           break;
         default:
           jj_la1[24] = jj_gen;
@@ -565,10 +594,11 @@ public class Compilador implements CompiladorConstants {
     }
   }
 
-  static final public void expPotenc() throws ParseException, ErroSemanticoException {
+  static final public void expPotenc(ListaItem lista) throws ParseException, ErroSemanticoException {
     trace_call("expPotenc");
     try {
-      exptNot();
+ Token t;
+      exptNot(lista);
       label_11:
       while (true) {
         switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
@@ -579,39 +609,45 @@ public class Compilador implements CompiladorConstants {
           jj_la1[25] = jj_gen;
           break label_11;
         }
-        jj_consume_token(POT);
-        exptNot();
+        t = jj_consume_token(POT);
+        exptNot(lista);
+                                 lista.add(new Item('o',t.image));
       }
     } finally {
       trace_return("expPotenc");
     }
   }
 
-  static final public void exptNot() throws ParseException, ErroSemanticoException {
+  static final public void exptNot(ListaItem lista) throws ParseException, ErroSemanticoException {
     trace_call("exptNot");
     try {
+ int countNeg = 0;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case NEGACAO:
         jj_consume_token(NEGACAO);
+                countNeg++;
         break;
       default:
         jj_la1[26] = jj_gen;
         ;
       }
-      expParent();
+      expParent(lista);
+     if(countNeg > 0 && countNeg % 2 == 1) {
+                 { lista.add(new Item('o',"!"));}
+         }
     } finally {
       trace_return("exptNot");
     }
   }
 
-  static final public void expParent() throws ParseException, ErroSemanticoException {
+  static final public void expParent(ListaItem lista) throws ParseException, ErroSemanticoException {
     trace_call("expParent");
     try {
- Token t;
+ Token t; Item item;
       switch ((jj_ntk==-1)?jj_ntk():jj_ntk) {
       case PAR_E:
         jj_consume_token(PAR_E);
-        exp();
+        expAux(lista);
         jj_consume_token(PAR_D);
         break;
       case IDENT:
@@ -623,9 +659,14 @@ public class Compilador implements CompiladorConstants {
         if( tabela.getSimb(t.image).getTipo() == 'S' ) {
                 {if (true) throw new ErroSemanticoException("Erro semantico -> Variavel "+t.image+ " deve ser do tipo Integer ");}
                 }
+
+                item = new Item('v',t.image);
+                lista.add(item);
         break;
       case INTEGER:
-        jj_consume_token(INTEGER);
+        t = jj_consume_token(INTEGER);
+                item =new Item('n',t.image);
+                lista.add(item);
         break;
       default:
         jj_la1[27] = jj_gen;

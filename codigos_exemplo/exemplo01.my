@@ -1,7 +1,9 @@
 //exemplo de código com If
 
-String a := "teste";
-Integer variavelT2 := "a";
+
+Integer y := 43;
+Integer x := 123 + y;
+String t := "123" # y;
 
 /*
 Integer condicaoTeste := 3+5;

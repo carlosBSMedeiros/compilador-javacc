@@ -48,12 +48,12 @@ public class Compilador
     
   }
 
-  public static void verificarTipo(char tipo, Token t) throws ErroSemanticoException{
-		if(tipo == 'S') {
-             if(!t.image.startsWith("\"") || !t.image.endsWith("\"") ) {
-				throw new ErroSemanticoException("Erro semantico -> tipo \"String\" necessita de \"\" no começo e fim da declaração ");
-			}
-		  }
+  public static void verificarTipo(char tipo, char conteudoVar, String nomeVar) throws ErroSemanticoException{
+		if(tipo == 'S' && conteudoVar != 'S') {
+			throw new ErroSemanticoException("Erro semantico -> Valor da variavel "+nomeVar+" deve ser uma String ");
+		} else if(tipo == 'I' && conteudoVar != 'I') {
+			throw new ErroSemanticoException("Erro semantico -> Valor da variavel "+nomeVar+" deve ser um Inteiro ");
+		}
   }
 }
 
@@ -88,7 +88,6 @@ SKIP : {
 
 TOKEN :
 {
-  	
   < PT_VIRG : ";" >
 | 
   < ATRIB : ":=" >
@@ -193,7 +192,7 @@ void comando() throws ErroSemanticoException:
 }
 
 void declararVar() throws ErroSemanticoException:
-{Simbolo simb; Token t; char tipo; Token conteudoVar = new Token();}
+{Simbolo simb; Token t; char tipo; char conteudoVar; }
 {
   //String teste; OU String teste := 'olá';
   //Integer teste; OU Integer teste := 10;
@@ -211,16 +210,22 @@ void declararVar() throws ErroSemanticoException:
     < ATRIB > /*se houver <ATRIB> variavel inicializada */ { simb.setInicializada('s'); }
 
     (
-      conteudoVar = < STRING > ( concatAtrib() )?
+     < STRING > ( concatAtrib() )?
 		{
-		  verificarTipo(tipo, conteudoVar);
+		  conteudoVar = 'S';
 		}
       |
       exp() ( concatAtrib() )?
 	      {
-		verificarTipo(tipo, conteudoVar);
+			conteudoVar = 'I';
 	      }
 	)
+
+	{
+		verificarTipo(tipo, conteudoVar, t.image);
+	}
+
+	
 
   
   )?
@@ -306,83 +311,116 @@ void type():
 }
 
 void exp() throws ErroSemanticoException:
-{}
+{ListaItem lista = new ListaItem();}
 {
-  expAnd()
+ expAux(lista)
+ 	{
+ 		System.out.println(lista.toString());
+	}
+}
+
+void expAux(ListaItem lista) throws ErroSemanticoException: { Token t;}
+{
+  expAnd(lista)
   (
-    < SC_OR > expAnd()
+    t=< SC_OR > expAnd(lista)
+      {
+		lista.add(new Item('o',t.image));
+      }
   )*
 }
 
-void expAnd() throws ErroSemanticoException:
-{}
-{
-  expRelac()
-  (
-    < SC_AND > expRelac()
-  )*
-}
-
-void expRelac() throws ErroSemanticoException:
-{}
-{
-  expAdt()
-  (
-    < IGUAL > expAdt()
-  | 
-    < DIFERENTE > expAdt()
-  | 
-    < MAIOR_IGUAL > expAdt()
-  | 
-    < MENOR_IGUAL > expAdt()
-  | 
-    < MAIOR > expAdt()
-  | 
-    < MENOR > expAdt()
-  )*
-}
-
-void expAdt() throws ErroSemanticoException:
-{}
-{
-  expMult()
-  (
-    < MAIS > expMult()
-  | 
-    < MENOS > expMult()
-  )*
-}
-
-void expMult() throws ErroSemanticoException:
-{}
-{
-  expPotenc()
-  (
-    < MULT > expPotenc()
-  | 
-    < DIVID > expPotenc()
-  )*
-}
-
-void expPotenc() throws ErroSemanticoException:
-{}
-{
-  exptNot()
-  (
-    < POT > exptNot()
-  )*
-}
-
-void exptNot() throws ErroSemanticoException:
-{}
-{
-  (< NEGACAO >)? expParent()
-}
-
-void expParent() throws ErroSemanticoException:
+void expAnd(ListaItem lista) throws ErroSemanticoException:
 {Token t;}
 {
-  < PAR_E > exp() < PAR_D >
+  expRelac(lista)
+  (
+    t=< SC_AND > expRelac(lista)
+      {
+		lista.add(new Item('o',t.image));
+      }
+  )*
+}
+
+void expRelac(ListaItem lista) throws ErroSemanticoException:
+{Token t;}
+{
+  expAdt(lista)
+  (
+    t=< IGUAL > expAdt(lista)
+   { lista.add(new Item('o',t.image)); }
+  | 
+    t=< DIFERENTE > expAdt(lista)
+   { lista.add(new Item('o',t.image)); }
+  | 
+    t=< MAIOR_IGUAL > expAdt(lista)
+   { lista.add(new Item('o',t.image)); }
+  | 
+    t=< MENOR_IGUAL > expAdt(lista)
+   { lista.add(new Item('o',t.image)); }
+  | 
+    t=< MAIOR > expAdt(lista)
+   { lista.add(new Item('o',t.image)); }
+  | 
+    t=< MENOR > expAdt(lista)
+   { lista.add(new Item('o',t.image)); }
+  )*
+}
+
+void expAdt(ListaItem lista) throws ErroSemanticoException:
+{Token t;}
+{
+  expMult(lista)
+  (
+    t = < MAIS > expMult(lista)
+   { lista.add(new Item('o',t.image)); }
+    
+  | 
+    t = < MENOS > expMult(lista)
+   { lista.add(new Item('o',t.image)); }
+    
+  )*
+}
+
+void expMult(ListaItem lista) throws ErroSemanticoException:
+{Token t;}
+{
+  expPotenc(lista)
+  (
+   t = < MULT > expPotenc(lista)
+   { lista.add(new Item('o',t.image)); }
+    
+  | 
+   t = < DIVID > expPotenc(lista)
+   { lista.add(new Item('o',t.image)); }
+    
+  )*
+}
+
+void expPotenc(ListaItem lista) throws ErroSemanticoException:
+{Token t;}
+{
+  exptNot(lista)
+  (
+   t= < POT > exptNot(lista)   { lista.add(new Item('o',t.image)); }
+    
+  )*
+}
+
+void exptNot(ListaItem lista) throws ErroSemanticoException:
+{int countNeg = 0;}
+{
+  (< NEGACAO > {countNeg++;})? expParent(lista) {
+     if(countNeg > 0 && countNeg % 2 == 1) {
+		 { lista.add(new Item('o',"!"));}
+	 }
+  }
+}
+
+void expParent(ListaItem lista) throws ErroSemanticoException:
+{Token t; Item item;}
+{
+  < PAR_E > expAux(lista) < PAR_D >
 | t=< IDENT >
 
 	{
@@ -393,9 +431,16 @@ void expParent() throws ErroSemanticoException:
         if( tabela.getSimb(t.image).getTipo() == 'S' ) {
           	throw new ErroSemanticoException("Erro semantico -> Variavel "+t.image+ " deve ser do tipo Integer ");
 		}
+
+		item = new Item('v',t.image);
+		lista.add(item);
 	}
 
-| < INTEGER >
+| t=< INTEGER >
+	{
+		item =new Item('n',t.image);
+	  	lista.add(item);
+	}
 }
 
 void operador() throws ErroSemanticoException:
